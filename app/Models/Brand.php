@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 Use voku\helper\HtmlDomParser;
 
 class Brand extends Model
@@ -17,7 +18,7 @@ class Brand extends Model
             Дальше выбираем функцию в зваисимости от типа МП
             пока это вайлдберис
         */
-        $url ='https://www.wildberries.ru/brands/podarok52-112777';
+        //$url ='https://www.wildberries.ru/brands/podarok52-112777';
         $brand= DB::table('brands')->select(array('id', 'href'))->where('href', '=',  $url )->get();
         if (count($brand)<=0)
         {
@@ -30,7 +31,7 @@ class Brand extends Model
             $links = $this->wildberriesBrandList($brand[0]->href);
 
         }
-        print_R($links);
+        $this->sortElement($links, $brand[0]->id);
 
     }
 
@@ -39,7 +40,6 @@ class Brand extends Model
          * TODO тут будет приходить правильный юрл
          *   пока делаем очереди
          */
-        //$url = 'https://www.wildberries.ru/brands/podarok52-112777';
         $main_url = 'https://www.wildberries.ru';
         $html =HtmlDomParser::file_get_html($url);
         foreach ($html->find('.j-card-item') as $product)
@@ -54,20 +54,19 @@ class Brand extends Model
         $nextpage = $pages->find('.pagination-next')->href;
         if (!empty($nextpage[0]))
         {
-            echo $main_url.$nextpage[0];
+
             $new_arr = $this->wildberriesBrandList($main_url.$nextpage[0]);
             $links = array_merge($links, $new_arr);
         }
 
         return $links;
-        //echo $nextpage[0];
-        /*foreach($pages->find('.pagination-item') as $page)
-        {
-            echo $page->href;
-        }*/
     }
-    protected function wildberisNextpage($url)
+    protected function sortElement($href, $id)
     {
+        $item = DB::table('itemlist')->select('href')->where('href', '=' , $href)->get();
+        if (empty($item[0]->href))
+        {
 
+        }
     }
 }
